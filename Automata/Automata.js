@@ -139,7 +139,7 @@ Phaser.Plugin.Automata.prototype.applyForce = function (force, strength) {
   if (this._sprite) {
     var limit = this._options.forces.maxForce * strength;
     force.setMagnitude(Math.min(limit, force.getMagnitude()));
-    var dummyPoint = new Phaser.Point(this.sprity.body.velocity.x, this.sprite.body.velocity.y);
+    var dummyPoint = new Phaser.Point(this._sprite.body.velocity.x, this._sprite.body.velocity.y);
     var velocity = Phaser.Point.add(dummyPoint, force);
     this._sprite.body.velocity.x += velocity.x;
     this._sprite.body.velocity.y += velocity.y;
