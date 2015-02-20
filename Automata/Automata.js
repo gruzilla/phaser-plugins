@@ -269,9 +269,9 @@ Phaser.Plugin.Automata.prototype.seek = function(target, viewDistance, isSeeking
       desired.normalize();
       if(isSeeking && this._options.seek.slowArrival && distance < this._options.seek.slowingRadius) {
         var m = Phaser.Math.mapLinear(distance,0, viewDistance,0, this._options.forces.maxSpeed);
-        desired.scaleBy(m);
+        desired.setMagnitude(desired.getMagnitude() * m);
       } else {
-        desired.scaleBy(this._options.forces.maxSpeed);
+        desired.setMagnitude(desired.getMagnitude() * this._options.forces.maxSpeed);
       }
 
 
@@ -367,7 +367,14 @@ Phaser.Plugin.Automata.prototype.evade = function(target, viewDistance) {
     targets.forEach(function(t) {
       if (t) {
         distance = Phaser.Point.distance(t, this._sprite.position);
-        steer = Phaser.Point.add(steer, this.flee(this.getFuturePosition(t), viewDistance, false).scaleBy(viewDistance / distance));
+          var fleeTo = this.flee(
+            this.getFuturePosition(t), viewDistance, false
+          );
+          fleeTo.setMagnitude(fleeTo.getMagnitude() * viewDistance / distance);
+          steer = Phaser.Point.add(
+            steer,
+            fleeTo
+          );
         totalDistance += distance;
         targetCounter++;
       }
@@ -390,14 +397,18 @@ Phaser.Plugin.Automata.prototype.wander = function() {
 
   circleLocation = this._sprite.body.velocity.clone();
   circleLocation.normalize();
-  circleLocation.scaleBy(this._options.wander.distance * this._radius);
+  circleLocation.setMagnitude(
+    circleLocation.getMagnitude() * this._options.wander.distance * this._radius
+  );
 
-  circleOffset = new Phaser.Point(this._options.wander.radius * this._radius * Math.cos(this._options.wander.theta),
-    this._options.wander.radius * this._radius * Math.sin(this._options.wander.theta));
+  circleOffset = new Phaser.Point(
+    this._options.wander.radius * this._radius * Math.cos(this._options.wander.theta),
+    this._options.wander.radius * this._radius * Math.sin(this._options.wander.theta)
+  );
 
   steer = Phaser.Point.add(circleLocation, circleOffset);
 
-  return steer.scaleBy(this._options.wander.strength);
+  return steer.setMagnitude(steer.getMagnitude() * this._options.wander.strength);
 
 };
 
