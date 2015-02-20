@@ -29,7 +29,7 @@ Phaser.Plugin.Automata = function (game, parent) {
   this.renderDebug = new Phaser.Plugin.Automata.debug(this._debugGraphics);
 };
 
-//	Extends the Phaser.Plugin template, setting up values we need
+//  Extends the Phaser.Plugin template, setting up values we need
 Phaser.Plugin.Automata.prototype = Object.create(Phaser.Plugin.prototype);
 Phaser.Plugin.Automata.prototype.constructor = Phaser.Plugin.Automata;
 
@@ -77,10 +77,20 @@ Phaser.Plugin.Automata.prototype.update = function () {
       this._sprite.rotation = Math.atan2(this._sprite.body.velocity.y, this._sprite.body.velocity.x);
     }
 
-    this._sprite.body.velocity.setMagnitude(Math.min(
+    if(typeof this._sprite.body == "Phaser.Physics.Arcade.Body") {
+      this._sprite.body.velocity.setMagnitude(Math.min(
+          this._options.forces.maxSpeed,
+          this._sprite.body.velocity.getMagnitude()
+      ));
+    } else {
+      var dummyPoint = new Phaser.Point(this._sprite.body.velocity.x, this._sprite.body.velocity.y);
+      dummyPoint.setMagnitude(
         this._options.forces.maxSpeed,
-        this._sprite.body.velocity.getMagnitude()
-    ));
+        dummyPoint.getMagnitude()
+      );
+      this._sprite.body.velocity.x = dummyPoint.x;
+      this._sprite.body.velocity.y = dummyPoint.y;
+    }
 
     if (this._options.game.debug) {
       this.renderDebug.velocity(this);
@@ -129,8 +139,10 @@ Phaser.Plugin.Automata.prototype.applyForce = function (force, strength) {
   if (this._sprite) {
     var limit = this._options.forces.maxForce * strength;
     force.setMagnitude(Math.min(limit, force.getMagnitude()));
-    var velocity = Phaser.Point.add(this._sprite.body.velocity, force);
-    this._sprite.body.velocity.add(velocity.x, velocity.y);
+    var dummyPoint = new Phaser.Point(this.sprity.body.velocity.x, this.sprite.body.velocity.y);
+    var velocity = Phaser.Point.add(dummyPoint, force);
+    this._sprite.body.velocity.x += velocity.x;
+    this._sprite.body.velocity.y += velocity.y;
   }
 };
 
@@ -180,9 +192,10 @@ Phaser.Plugin.Automata.prototype.getFuturePosition = function(target) {
 
   difference = Phaser.Point.subtract(tpos, pos);
   distance = difference.getMagnitude();
-  if (!!target.body.velocity.getMagnitude()) {
-    time = distance / target.body.velocity.getMagnitude();
-    targetPosition = Phaser.Point.multiply(target.body.velocity, new Phaser.Point(time,time));
+  var dummyPoint = new Phaser.Point(target.body.velocity.x, target.body.velocity.y)
+  if (!!dummyPoint.getMagnitude()) {
+    time = distance / dummyPoint.getMagnitude();
+    targetPosition = Phaser.Point.multiply(dummyPoint, new Phaser.Point(time,time));
     targetPosition.add(tpos.x, tpos.y);
   } else {
     targetPosition = tpos;
