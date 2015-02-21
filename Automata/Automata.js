@@ -41,7 +41,9 @@ Phaser.Plugin.Automata.prototype.constructor = Phaser.Plugin.Automata;
 Phaser.Plugin.Automata.prototype.setSprite = function (sprite) {
 
   this._sprite = sprite;
-  this._radius = Math.sqrt(this._sprite.height * this._sprite.height + this._sprite.width * this._sprite.width) / 2;
+  if (sprite) {
+    this._radius = Math.sqrt(this._sprite.height * this._sprite.height + this._sprite.width * this._sprite.width) / 2;
+  }
 };
 
 /**
